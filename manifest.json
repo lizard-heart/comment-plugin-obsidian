@@ -1,0 +1,8 @@
+{
+	"id": "obsidian-comment-plugin",
+	"name": "Comment Plugin",
+	"version": "0.0.1",
+	"minAppVersion": "0.12.10",
+	"description": "A plugin to show a comment view in obsidian.",
+	"isDesktopOnly": false
+}
