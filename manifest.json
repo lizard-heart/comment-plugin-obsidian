@@ -1,0 +1,8 @@
+{
+	"id": "obsidian-comments-view",
+	"name": "Comments View",
+	"version": "0.0.8",
+	"minAppVersion": "0.12.10",
+	"description": "Plugin to add comments to right pane.",
+	"isDesktopOnly": false
+}
