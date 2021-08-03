@@ -24,7 +24,7 @@ class SampleModal extends Modal {
 }
 
 export default class CommentsViewPlugin extends Plugin {
-	settings: PluginSettings;
+	settings: CommentPluginSettings;
 
 	initLeaf(): void {
 			// if (this.app.workspace.getLeavesOfType("comments-pane-view").length) {
@@ -67,7 +67,7 @@ export default class CommentsViewPlugin extends Plugin {
 					let leaf = this.app.workspace.activeLeaf;
 					if (leaf) {
 						if (!checking) {
-							new SampleModal(this.app).open();
+							// new SampleModal(this.app).open();
 						}
 						return true;
 					}
@@ -146,16 +146,16 @@ class SettingsTab extends PluginSettingTab {
 
 		containerEl.createEl('h2', {text: 'Settings for the comments view plugin.'});
 
-		// new Setting(containerEl)
-		// 	.setName('Map follows search results')
-		// 	.setDesc('Auto focus the map to fit search results.')
-		// 	.addToggle(component => {component
-		// 		.setValue(this.plugin.settings.autoZoom)
-		// 			.onChange(async (value) => {
-		// 				this.plugin.settings.autoZoom = value;
-		// 				await this.plugin.saveSettings();
-		// 			})
-		// 	});
+		new Setting(containerEl)
+			.setName('Username')
+			.setDesc('Set the username to appear with all your comments')
+			.addText(component => { component
+					.setValue(this.plugin.settings.usernameString || '')
+					.onChange(async (value: string) => {
+						this.plugin.settings.usernameString = value;
+						await this.plugin.saveSettings();
+					})
+				});
 		//
 		// new Setting(containerEl)
 		// 	.setName('Default action for map marker click')

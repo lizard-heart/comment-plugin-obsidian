@@ -30,8 +30,18 @@ class SampleModal extends Modal {
 	onOpen() {
 		let {contentEl} = this;
 		contentEl.createEl("h1", { text: "Reply to comment" });
-		// contentEl.created("TextComponent", {text: "test"})
-		contentEl.createEl("button", { text: "Post" });
+		contentEl.createEl("input", {text: "test"})
+		// contentEl.createEl("button", { text: "Post" });
+		this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
+			buttonsEl
+				.createEl("button", { text: "Post comment" })
+				.addEventListener("click", () => this.close());
+				buttonsEl
+					.createEl("button", { text: "Never mind" })
+					.addEventListener("click", () => this.close());
+			});
+
+
 	}
 
 	onClose() {
@@ -135,7 +145,7 @@ export class CommentsView extends ItemView {
 		var i:number;
 		for (i=0;i<allComments.length;i++) {
 			let newText = createDiv({
-				'text': allComments[i].toString()
+				'text': this.plugin.settings.usernameString + ": " + allComments[i].toString()
 			});
 			let newReplyButton = new ButtonComponent(newText);
 			newReplyButton.onClick(() => new SampleModal(this.app).open())

@@ -2,7 +2,7 @@ import * as consts from 'src/consts';
 import { LatLng } from 'leaflet';
 import { SplitDirection } from 'obsidian';
 
-export type PluginSettings = {
+export type CommentPluginSettings = {
 	darkMode: boolean;
 	markerIcons: Record<string, any>;
 	zoomOnGoFromNote: number;
@@ -16,9 +16,10 @@ export type PluginSettings = {
 	newNoteNameFormat?: string;
 	newNotePath?: string;
 	newNoteTemplate?: string;
+	usernameString?: string;
 }
 
-export const DEFAULT_SETTINGS: PluginSettings = {
+export const DEFAULT_SETTINGS: CommentPluginSettings = {
 	darkMode: false,
 	markerIcons: {
 		"default": {"prefix": "fas", "icon": "fa-circle", "markerColor": "blue"},
@@ -30,5 +31,6 @@ export const DEFAULT_SETTINGS: PluginSettings = {
 	tilesUrl: consts.TILES_URL_OPENSTREETMAP,
 	autoZoom: true,
 	markerClickBehavior: 'samePane',
-	newNoteNameFormat: 'Location added on {{date:YYYY-MM-DD}}T{{date:HH-mm}}'
+	newNoteNameFormat: 'Location added on {{date:YYYY-MM-DD}}T{{date:HH-mm}}',
+	usernameString: "Anonymous"
 };
