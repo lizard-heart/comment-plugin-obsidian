@@ -1,4 +1,4 @@
-import { App, TAbstractFile, Editor, ButtonComponent, MarkdownView, getAllTags, ItemView, Modal, MenuItem, Menu, TFile, TextComponent, DropdownComponent, WorkspaceLeaf } from 'obsidian';
+import { App, TAbstractFile, Editor, ButtonComponent, MarkdownView, ItemView, Modal, MenuItem, Menu, TFile, TextComponent, DropdownComponent, WorkspaceLeaf } from 'obsidian';
 import * as leaflet from 'leaflet';
 // import { parseYaml, Plugin, WorkspaceLeaf } from "obsidian";
 // Ugly hack for obsidian-leaflet compatability, see https://github.com/esm7/obsidian-map-view/issues/6
@@ -21,6 +21,8 @@ import {
 } from "./views";
 // import TrackerView from "./view";
 
+
+
 class SampleModal extends Modal {
 	constructor(app: App) {
 		super(app);
@@ -30,15 +32,18 @@ class SampleModal extends Modal {
 	onOpen() {
 		let {contentEl} = this;
 		contentEl.createEl("h1", { text: "Reply to comment" });
-		contentEl.createEl("input", {text: "test"})
+		contentEl.createEl("input",{ attr: { id: "my-id" } })
+		console.log(document.getElementById('my-id').value)
 		// contentEl.createEl("button", { text: "Post" });
 		this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
 			buttonsEl
 				.createEl("button", { text: "Post comment" })
+				.addEventListener("click", () => {
+					console.log("test");
+				});
+			buttonsEl
+				.createEl("button", { text: "Never mind" })
 				.addEventListener("click", () => this.close());
-				buttonsEl
-					.createEl("button", { text: "Never mind" })
-					.addEventListener("click", () => this.close());
 			});
 
 
@@ -128,6 +133,12 @@ export class CommentsView extends ItemView {
 		// console.log("current note" + fileContents)
 		const { workspace } = this.app;
 		const activeView = workspace.getActiveViewOfType(MarkdownView);
+
+		if (activeView) {
+				const fileContents = await this.app.vault.cachedRead(activeView.file);
+				this.app.vault.modify(activeView.file, fileContents+"test")
+		}
+
 		let commentBox = await this.getCommentList();
 		console.log(allComments);
 		// let commentBox = createDiv({
@@ -141,9 +152,16 @@ export class CommentsView extends ItemView {
 		// 	.setButtonText("Reply")
 		// 	.setTooltip('Reply to this comment');
 			// .onClick(() => this.autoFitMapToMarkers());
+
+			this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
+				buttonsEl
+					.createEl("button", { text: "New comment" })
+					.addEventListener("click", () => this.close());
+				});
+
 		var arr = [9,8,7,6,5,4]
 		var i:number;
-		for (i=0;i<allComments.length;i++) {
+		for (i=1;i<allComments.length;i++) {
 			let newText = createDiv({
 				'text': this.plugin.settings.usernameString + ": " + allComments[i].toString()
 			});
@@ -322,6 +340,15 @@ export class CommentsView extends ItemView {
 					})
 				// const allComments = textBox.Text()
 				}
+		}
+
+		async postCommentToFile() {
+			const { workspace } = this.app;
+			const activeView = workspace.getActiveViewOfType(MarkdownView);
+			if (activeView) {
+					const fileContents = await this.app.vault.cachedRead(activeView.file);
+					this.app.vault.modify(activeView.file, fileContents+document.getElementById('my-id').value);
+			};
 		}
 
 	getAllTagNames() : string[] {

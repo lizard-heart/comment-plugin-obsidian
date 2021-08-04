@@ -38,6 +38,15 @@ export default class CommentsViewPlugin extends Plugin {
 	async onload() {
 		// addIcon('globe', consts.RIBBON_ICON);
 
+		// const { workspace } = this.app;
+		// const activeView = workspace.getActiveViewOfType(MarkdownView);
+		// let textBox = createDiv({
+		// 		'text': "no text"
+		// 	})
+		// if (activeView) {
+		// 		const fileContents = await this.app.vault.cachedRead(activeView.file);
+		// 		vault.modify(activeView, fileContents+"test")
+		// 	}
 
 
 
