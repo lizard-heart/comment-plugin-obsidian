@@ -21,7 +21,7 @@ import {
 } from "./views";
 // import TrackerView from "./view";
 
-
+let globalFileContents = "testtttt"
 
 class SampleModal extends Modal {
 	constructor(app: App) {
@@ -38,11 +38,6 @@ class SampleModal extends Modal {
 		this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
 			buttonsEl
 				.createEl("button", { text: "Post comment" })
-				.addEventListener("click", () => {
-					console.log("test");
-				});
-			buttonsEl
-				.createEl("button", { text: "Never mind" })
 				.addEventListener("click", () => this.close());
 			});
 
@@ -51,6 +46,12 @@ class SampleModal extends Modal {
 
 	onClose() {
 		let {contentEl} = this;
+		const { workspace } = this.app;
+		const activeView = workspace.getActiveViewOfType(MarkdownView);
+		if (activeView) {
+				// const fileContents = this.app.vault.cachedRead(activeView.file);
+				this.app.vault.modify(activeView.file, globalFileContents+"\n - "+document.getElementById('my-id').value);
+		};
 		contentEl.empty();
 	}
 }
@@ -136,9 +137,13 @@ export class CommentsView extends ItemView {
 
 		if (activeView) {
 				const fileContents = await this.app.vault.cachedRead(activeView.file);
-				this.app.vault.modify(activeView.file, fileContents+"test")
+				if (fileContents.includes("# Comments")) {
+					// this.app.vault.modify(activeView.file, fileContents+"test")
+				} else {
+					this.app.vault.modify(activeView.file, fileContents+"\n # Comments")
+				}
 		}
-
+		// this.postCommentToFile();
 		let commentBox = await this.getCommentList();
 		console.log(allComments);
 		// let commentBox = createDiv({
@@ -156,7 +161,7 @@ export class CommentsView extends ItemView {
 			this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
 				buttonsEl
 					.createEl("button", { text: "New comment" })
-					.addEventListener("click", () => this.close());
+					.addEventListener("click", () => new SampleModal(this.app).open());
 				});
 
 		var arr = [9,8,7,6,5,4]
@@ -166,10 +171,12 @@ export class CommentsView extends ItemView {
 				'text': this.plugin.settings.usernameString + ": " + allComments[i].toString()
 			});
 			let newReplyButton = new ButtonComponent(newText);
+			globalFileContents = await this.app.vault.cachedRead(activeView.file);
 			newReplyButton.onClick(() => new SampleModal(this.app).open())
 				.setButtonText("Reply")
 				.setTooltip('Reply to this comment');
 			this.contentEl.append(newText);
+			// this.onload()
 		}
 
 		// let commentBox2 = createDiv({
@@ -343,12 +350,13 @@ export class CommentsView extends ItemView {
 		}
 
 		async postCommentToFile() {
-			const { workspace } = this.app;
-			const activeView = workspace.getActiveViewOfType(MarkdownView);
-			if (activeView) {
-					const fileContents = await this.app.vault.cachedRead(activeView.file);
-					this.app.vault.modify(activeView.file, fileContents+document.getElementById('my-id').value);
-			};
+			console.log("testing")
+			// const { workspace } = this.app;
+			// const activeView = workspace.getActiveViewOfType(MarkdownView);
+			// if (activeView) {
+			// 		const fileContents = await this.app.vault.cachedRead(activeView.file);
+			// 		this.app.vault.modify(activeView.file, fileContents+document.getElementById('my-id').value);
+			// };
 		}
 
 	getAllTagNames() : string[] {

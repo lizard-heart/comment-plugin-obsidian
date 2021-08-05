@@ -69,6 +69,8 @@ export default class CommentsViewPlugin extends Plugin {
 							}));
 		}
 
+
+
 		this.addCommand({
 			id: 'comments-pane-view',
 			name: 'Open Comments View',
