@@ -21,7 +21,9 @@ import {
 } from "./views";
 // import TrackerView from "./view";
 
-let globalFileContents = "testtttt"
+let globalFileContents = "UH OH THERE WAS AN ERROR WHERE YOUR FILE GOT DELETED UNDOING, SAVING YOUR FILE AND TRYING AGAIN"
+let localUserName = ""
+
 
 class SampleModal extends Modal {
 	constructor(app: App) {
@@ -50,9 +52,10 @@ class SampleModal extends Modal {
 		const activeView = workspace.getActiveViewOfType(MarkdownView);
 		if (activeView) {
 				// const fileContents = this.app.vault.cachedRead(activeView.file);
-				this.app.vault.modify(activeView.file, globalFileContents+"\n - "+document.getElementById('my-id').value);
+				this.app.vault.modify(activeView.file, globalFileContents+"\n - " + localUserName + ": " + document.getElementById('my-id').value);
 		};
 		contentEl.empty();
+
 	}
 }
 
@@ -134,13 +137,14 @@ export class CommentsView extends ItemView {
 		// console.log("current note" + fileContents)
 		const { workspace } = this.app;
 		const activeView = workspace.getActiveViewOfType(MarkdownView);
+    localUserName = this.plugin.settings.usernameString
 
 		if (activeView) {
 				const fileContents = await this.app.vault.cachedRead(activeView.file);
 				if (fileContents.includes("# Comments")) {
 					// this.app.vault.modify(activeView.file, fileContents+"test")
 				} else {
-					this.app.vault.modify(activeView.file, fileContents+"\n # Comments")
+					this.app.vault.modify(activeView.file, fileContents+"\n # Comments \n - initial comment")
 				}
 		}
 		// this.postCommentToFile();
@@ -168,7 +172,7 @@ export class CommentsView extends ItemView {
 		var i:number;
 		for (i=1;i<allComments.length;i++) {
 			let newText = createDiv({
-				'text': this.plugin.settings.usernameString + ": " + allComments[i].toString()
+				'text': allComments[i].toString()
 			});
 			let newReplyButton = new ButtonComponent(newText);
 			globalFileContents = await this.app.vault.cachedRead(activeView.file);
