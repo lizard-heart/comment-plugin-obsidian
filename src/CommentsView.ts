@@ -23,7 +23,7 @@ import {
 
 let globalFileContents = "UH OH THERE WAS AN ERROR WHERE YOUR FILE GOT DELETED UNDOING, SAVING YOUR FILE AND TRYING AGAIN"
 let localUserName = ""
-
+let replyComment = ""
 
 class SampleModal extends Modal {
 	constructor(app: App) {
@@ -47,14 +47,23 @@ class SampleModal extends Modal {
 	}
 
 	onClose() {
-		let {contentEl} = this;
-		const { workspace } = this.app;
-		const activeView = workspace.getActiveViewOfType(MarkdownView);
-		if (activeView) {
-				// const fileContents = this.app.vault.cachedRead(activeView.file);
-				this.app.vault.modify(activeView.file, globalFileContents+"\n - " + localUserName + ": " + document.getElementById('my-id').value);
-		};
-		contentEl.empty();
+
+      let {contentEl} = this;
+      const { workspace } = this.app;
+      const activeView = workspace.getActiveViewOfType(MarkdownView);
+      if (replyComment == "NONE") {
+        if (activeView) {
+          this.app.vault.modify(activeView.file, globalFileContents+"\n - " + localUserName + ": " + document.getElementById('my-id').value);
+            // const fileContents = this.app.vault.cachedRead(activeView.file);
+            // this.app.vault.modify(activeView.file, globalFileContents+"\n - " + localUserName + ": " + document.getElementById('my-id').value);
+          };
+      } else {
+        if (activeView) {
+          // console.log("should be replying to " + replyComment)
+          this.app.vault.modify(activeView.file, globalFileContents.split(replyComment)[0]+replyComment + "- ________" + localUserName + ": " + document.getElementById('my-id').value + "\n" + globalFileContents.split(replyComment)[1]);
+        }
+      }
+      contentEl.empty();
 
 	}
 }
@@ -165,18 +174,26 @@ export class CommentsView extends ItemView {
 			this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
 				buttonsEl
 					.createEl("button", { text: "New comment" })
-					.addEventListener("click", () => new SampleModal(this.app).open());
+					.addEventListener("click", () => {
+            replyComment = "NONE"
+            new SampleModal(this.app).open();
+          });
 				});
 
 		var arr = [9,8,7,6,5,4]
 		var i:number;
 		for (i=1;i<allComments.length;i++) {
+      let currentcommenttext = allComments[i].toString()
 			let newText = createDiv({
-				'text': allComments[i].toString()
+				'text': currentcommenttext
 			});
 			let newReplyButton = new ButtonComponent(newText);
 			globalFileContents = await this.app.vault.cachedRead(activeView.file);
-			newReplyButton.onClick(() => new SampleModal(this.app).open())
+			newReplyButton.onClick(() => {
+        replyComment = currentcommenttext
+        console.log("reply comment" + replyComment)
+        new SampleModal(this.app).open();
+      })
 				.setButtonText("Reply")
 				.setTooltip('Reply to this comment');
 			this.contentEl.append(newText);
