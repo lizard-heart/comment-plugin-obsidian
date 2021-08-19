@@ -9,6 +9,7 @@ import { getFrontMatterLocation, matchInlineLocation, verifyLocation } from 'src
 
 class SampleModal extends Modal {
 	constructor(app: App) {
+
 		super(app);
 	}
 
@@ -25,7 +26,7 @@ class SampleModal extends Modal {
 
 export default class CommentsViewPlugin extends Plugin {
 	settings: CommentPluginSettings;
-
+	// this.registerEvent(this.app.workspace.on("file-open", (_: any) => this.onload()));
 	initLeaf(): void {
 			// if (this.app.workspace.getLeavesOfType("comments-pane-view").length) {
 			// 	return;

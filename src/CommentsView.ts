@@ -97,6 +97,7 @@ export class CommentsView extends ItemView {
 	constructor(leaf: WorkspaceLeaf, settings: PluginSettings, plugin: CommentsViewPlugin) {
 		super(leaf);
 		this.navigation = true;
+    this.registerEvent(this.app.workspace.on("file-open", (_: any) => this.onOpen()));
 		this.settings = settings;
 		this.plugin = plugin;
 		// Create the default state by the configuration
@@ -144,123 +145,122 @@ export class CommentsView extends ItemView {
 
 	async onOpen() {
 		// console.log("current note" + fileContents)
-		const { workspace } = this.app;
-		const activeView = workspace.getActiveViewOfType(MarkdownView);
+    const { workspace } = this.app;
+    const activeView = workspace.getActiveViewOfType(MarkdownView);
     localUserName = this.plugin.settings.usernameString
 
-		if (activeView) {
-				const fileContents = await this.app.vault.cachedRead(activeView.file);
-				if (fileContents.includes("# Comments")) {
-					// this.app.vault.modify(activeView.file, fileContents+"test")
-				} else {
-					this.app.vault.modify(activeView.file, fileContents+"\n # Comments \n - initial comment")
-				}
-		}
-		// this.postCommentToFile();
-		let commentBox = await this.getCommentList();
-		console.log(allComments);
-		// let commentBox = createDiv({
-		// 	'text': "text"
-		// }, (el: HTMLDivElement) => {
-		// 	el.style.position = 'topright';
-		// 	el.style.zIndex = '3';
-		// });
-		// let replyButton = new ButtonComponent(commentBox);
-		// replyButton
-		// 	.setButtonText("Reply")
-		// 	.setTooltip('Reply to this comment');
-			// .onClick(() => this.autoFitMapToMarkers());
+    if (activeView) {
+        const fileContents = await this.app.vault.cachedRead(activeView.file);
+        if (fileContents.includes("# Comments")) {
+          // this.app.vault.modify(activeView.file, fileContents+"test")
+        } else {
+          this.app.vault.modify(activeView.file, fileContents+"\n # Comments \n - initial comment")
+        }
+    }
+    // this.postCommentToFile();
+    let commentBox = await this.getCommentList();
+    console.log(allComments);
+    // let commentBox = createDiv({
+    // 	'text': "text"
+    // }, (el: HTMLDivElement) => {
+    // 	el.style.position = 'topright';
+    // 	el.style.zIndex = '3';
+    // });
+    // let replyButton = new ButtonComponent(commentBox);
+    // replyButton
+    // 	.setButtonText("Reply")
+    // 	.setTooltip('Reply to this comment');
+      // .onClick(() => this.autoFitMapToMarkers());
 
-			this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
-				buttonsEl
-					.createEl("button", { text: "New comment" })
-					.addEventListener("click", () => {
+      this.contentEl.createDiv("modal-button-container", (buttonsEl) => {
+        buttonsEl
+          .createEl("button", { text: "New comment" })
+          .addEventListener("click", () => {
             replyComment = "NONE"
             new SampleModal(this.app).open();
           });
-				});
+        });
 
-		var arr = [9,8,7,6,5,4]
-		var i:number;
-		for (i=1;i<allComments.length;i++) {
+    var arr = [9,8,7,6,5,4]
+    var i:number;
+    for (i=1;i<allComments.length;i++) {
       let currentcommenttext = allComments[i].toString()
-			let newText = createDiv({
-				'text': currentcommenttext
-			});
-			let newReplyButton = new ButtonComponent(newText);
-			globalFileContents = await this.app.vault.cachedRead(activeView.file);
-			newReplyButton.onClick(() => {
+      let newText = createDiv({
+        'text': currentcommenttext
+      });
+      let newReplyButton = new ButtonComponent(newText);
+      globalFileContents = await this.app.vault.cachedRead(activeView.file);
+      newReplyButton.onClick(() => {
         replyComment = currentcommenttext
         console.log("reply comment" + replyComment)
         new SampleModal(this.app).open();
       })
-				.setButtonText("Reply")
-				.setTooltip('Reply to this comment');
-			this.contentEl.append(newText);
-			// this.onload()
-		}
+        .setButtonText("Reply")
+        .setTooltip('Reply to this comment');
+      this.contentEl.append(newText);
+      // this.onload()
+    }
 
-		// let commentBox2 = createDiv({
-		// 	'text': "______reply to comment"
-		// }, (el: HTMLDivElement) => {
-		// 	el.style.position = 'topright';
-		// 	el.style.zIndex = '3';
-		// });
-		// let replyButton2 = new ButtonComponent(commentBox2);
-		// replyButton2
-		// 	.setButtonText("Reply")
-		// 	.setTooltip('Reply to this comment');
-				// .onClick(() => this.autoFitMapToMarkers());
+    // let commentBox2 = createDiv({
+    // 	'text': "______reply to comment"
+    // }, (el: HTMLDivElement) => {
+    // 	el.style.position = 'topright';
+    // 	el.style.zIndex = '3';
+    // });
+    // let replyButton2 = new ButtonComponent(commentBox2);
+    // replyButton2
+    // 	.setButtonText("Reply")
+    // 	.setTooltip('Reply to this comment');
+        // .onClick(() => this.autoFitMapToMarkers());
 
-		//
-		// let commentBox3 = createDiv({
-		// 	'text': "another comment"
-		// }, (el: HTMLDivElement) => {
-		// 	el.style.position = 'topright';
-		// 	el.style.zIndex = '3';
-		// });
-		// let replyButton3 = new ButtonComponent(commentBox3);
-		// replyButton3
-		// 	.setButtonText("Reply")
-		// 	.setTooltip('Reply to this comment');
+    //
+    // let commentBox3 = createDiv({
+    // 	'text': "another comment"
+    // }, (el: HTMLDivElement) => {
+    // 	el.style.position = 'topright';
+    // 	el.style.zIndex = '3';
+    // });
+    // let replyButton3 = new ButtonComponent(commentBox3);
+    // replyButton3
+    // 	.setButtonText("Reply")
+    // 	.setTooltip('Reply to this comment');
 
-		var that = this;
-		this.isOpen = true;
-		this.state = this.defaultState;
-		let newComment = createDiv({
-			'cls': 'graph-controls',
-			'text': 'New Comment'
-		}, (el: HTMLDivElement) => {
-			// el.style.position = 'fixed';
-			el.style.zIndex = '2';
-		});
-		this.display.tagsBox = new TextComponent(newComment);
-		this.display.tagsBox.setPlaceholder('Comment text');
-		this.display.tagsBox.onChange(async (tagsBox: string) => {
-			that.state.tags = tagsBox.split(',').filter(t => t.length > 0);
-		});
+    var that = this;
+    this.isOpen = true;
+    this.state = this.defaultState;
+    let newComment = createDiv({
+      'cls': 'graph-controls',
+      'text': 'New Comment'
+    }, (el: HTMLDivElement) => {
+      // el.style.position = 'fixed';
+      el.style.zIndex = '2';
+    });
+    this.display.tagsBox = new TextComponent(newComment);
+    this.display.tagsBox.setPlaceholder('Comment text');
+    this.display.tagsBox.onChange(async (tagsBox: string) => {
+      that.state.tags = tagsBox.split(',').filter(t => t.length > 0);
+    });
 
-		let fitButton = new ButtonComponent(newComment);
-		fitButton
-			.setButtonText("Post the comment")
-			.setTooltip('Add your comment to the thread')
-			// .onClick(() => this.autoFitMapToMarkers());
+    let fitButton = new ButtonComponent(newComment);
+    fitButton
+      .setButtonText("Post the comment")
+      .setTooltip('Add your comment to the thread')
+      // .onClick(() => this.autoFitMapToMarkers());
 
-		this.contentEl.style.padding = '100px 100px';
-		// this.contentEl.append(newComment);
-		// this.contentEl.append(commentBox);
-		// this.contentEl.append(commentBox2);
-		// this.contentEl.append(commentBox3);
+    this.contentEl.style.padding = '100px 100px';
+    // this.contentEl.append(newComment);
+    // this.contentEl.append(commentBox);
+    // this.contentEl.append(commentBox2);
+    // this.contentEl.append(commentBox3);
 
-		this.display.commentsDiv = createDiv({cls: 'map'}, (el: HTMLDivElement) => {
-			el.style.zIndex = '1';
-			el.style.width = '100%';
-			el.style.height = '100%';
-		});
-		this.contentEl.append(this.display.commentsDiv);
-
-		return super.onOpen();
-	}
+    this.display.commentsDiv = createDiv({cls: 'map'}, (el: HTMLDivElement) => {
+      el.style.zIndex = '1';
+      el.style.width = '100%';
+      el.style.height = '100%';
+    });
+    this.contentEl.append(this.display.commentsDiv);
+    super.onOpen()
+  }
 
 	onClose() {
 		this.isOpen = false;
