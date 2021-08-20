@@ -1,11 +1,11 @@
 import { addIcon, App, Editor, FileView, MarkdownView, Modal, MenuItem, Menu, TFile, Plugin, WorkspaceLeaf, PluginSettingTab, Setting, TAbstractFile } from 'obsidian';
 import * as consts from 'src/consts';
-import * as leaflet from 'leaflet';
+// import * as leaflet from 'leaflet';
 
 import { CommentsView } from 'src/CommentsView';
 // import { createNewComment } from 'src/newComment';
 import { PluginSettings, DEFAULT_SETTINGS } from 'src/settings';
-import { getFrontMatterLocation, matchInlineLocation, verifyLocation } from 'src/markers';
+// import { getFrontMatterLocation, matchInlineLocation, verifyLocation } from 'src/markers';
 
 class SampleModal extends Modal {
 	constructor(app: App) {
@@ -58,7 +58,7 @@ export default class CommentsViewPlugin extends Plugin {
 		});
 
 		if (this.app.workspace.layoutReady) {
-			initLeaf();
+			this.initLeaf();
 		} else {
 				this.registerEvent(
 						this.app.workspace.on(
