@@ -32,7 +32,7 @@ export default class CommentsViewPlugin extends Plugin {
 			// 	return;
 			// }
 			this.app.workspace.getRightLeaf(false).setViewState({
-				type: "comments-pane-view",
+				type: "comment-pane-view",
 			});
 		}
 

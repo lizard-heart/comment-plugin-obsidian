@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS: CommentPluginSettings = {
 		"#dogs": {"prefix": "fas", "icon": "fa-paw"},
 	},
 	zoomOnGoFromNote: 15,
-	tilesUrl: consts.TILES_URL_OPENSTREETMAP,
+	// tilesUrl: consts.TILES_URL_OPENSTREETMAP,
 	autoZoom: true,
 	markerClickBehavior: 'samePane',
 	newNoteNameFormat: 'Location added on {{date:YYYY-MM-DD}}T{{date:HH-mm}}',

@@ -11,7 +11,7 @@ import 'leaflet-geosearch/dist/geosearch.css';
 
 import * as consts from 'src/consts';
 import { PluginSettings, DEFAULT_SETTINGS } from 'src/settings';
-import { MarkersMap, FileMarker, buildMarkers, getIconFromOptions, buildAndAppendFileMarkers } from 'src/markers';
+// import { MarkersMap, FileMarker, buildMarkers, getIconFromOptions, buildAndAppendFileMarkers } from 'src/markers';
 import CommentsViewPlugin from 'src/main';
 import * as utils from 'src/utils';
 import {
@@ -63,17 +63,15 @@ class SampleModal extends Modal {
           this.app.vault.modify(activeView.file, globalFileContents.split(replyComment)[0]+replyComment + "- ________" + localUserName + ": " + document.getElementById('my-id').value + "\n" + globalFileContents.split(replyComment)[1]);
         }
       }
-      contentEl.empty();
-
 	}
 }
 
-type MapState = {
-	mapZoom: number;
-	mapCenter: leaflet.LatLng;
-	tags: string[];
-	version: number;
-}
+// type MapState = {
+// 	mapZoom: number;
+// 	mapCenter: leaflet.LatLng;
+// 	tags: string[];
+// 	version: number;
+// }
 
 let allComments = []
 
@@ -97,16 +95,16 @@ export class CommentsView extends ItemView {
 	constructor(leaf: WorkspaceLeaf, settings: PluginSettings, plugin: CommentsViewPlugin) {
 		super(leaf);
 		this.navigation = true;
-    this.registerEvent(this.app.workspace.on("file-open", (_: any) => this.onOpen()));
+    this.registerEvent(this.app.workspace.on("file-open", (_: any) => this.redraw()));
 		this.settings = settings;
 		this.plugin = plugin;
 		// Create the default state by the configuration
-		this.defaultState = {
-			mapZoom: this.settings.defaultZoom || consts.DEFAULT_ZOOM,
-			mapCenter: this.settings.defaultMapCenter || consts.DEFAULT_CENTER,
-			tags: this.settings.defaultTags || consts.DEFAULT_TAGS,
-			version: 0
-		};
+		// this.defaultState = {
+		// 	mapZoom: this.settings.defaultZoom || consts.DEFAULT_ZOOM,
+		// 	mapCenter: this.settings.defaultMapCenter || consts.DEFAULT_CENTER,
+		// 	tags: this.settings.defaultTags || consts.DEFAULT_TAGS,
+		// 	version: 0
+		// };
 		// this.setState = async (state: MapState, result) => {
 		// 	if (state) {
 		// 		console.log(`Received setState:`, state);
@@ -127,28 +125,56 @@ export class CommentsView extends ItemView {
 	getViewType() { return "comment-pane-view"; }
 	getDisplayText() { return 'Comment View'; }
 
-// 	class SampleModal extends Modal {
-// 	constructor(app: App) {
-// 		super(app);
-// 	}
-//
-// 	onOpen() {
-// 		let {contentEl} = this;
-// 		contentEl.setText('Woah!');
-// 	}
-//
-// 	onClose() {
-// 		let {contentEl} = this;
-// 		contentEl.empty();
-// 	}
-// }
 
 	async onOpen() {
-		// console.log("current note" + fileContents)
+    await this.redraw()
+    super.onOpen()
+  }
+
+	onClose() {
+		this.isOpen = false;
+		return super.onClose();
+	}
+
+	getFileListByQuery(tags: string[]): TFile[] {
+		let results: TFile[] = [];
+		const allFiles = this.app.vault.getFiles();
+		for (const file of allFiles) {
+			var match = true;
+			if (tags && tags.length > 0) {
+				// A tags query exist, file defaults to non-matching and we'll add it if it has one of the tags
+				match = false;
+				const fileCache = this.app.metadataCache.getFileCache(file);
+				if (fileCache && fileCache.tags) {
+					const tagsMatch = fileCache.tags.some(tagInFile => tags.indexOf(tagInFile.tag) > -1);
+					if (tagsMatch)
+						match = true;
+				}
+			}
+			if (match)
+				results.push(file);
+		}
+		return results;
+	}
+
+	// updateMapMarkers(newMarkers: FileMarker[]) {
+	//
+	// }
+
+	// async autoFitMapToMarkers() {
+	//
+	// 	// if (this.display.markers.size > 0) {
+	// 	// 	const locations: leaflet.LatLng[] = Array.from(this.display.markers.values()).map(fileMarker => fileMarker.location);
+	// 	// 	console.log(`Auto fit by state:`, this.state);
+	// 	// 	this.display.map.fitBounds(leaflet.latLngBounds(locations));
+	// 	// }
+	// }
+
+  async redraw() {
     const { workspace } = this.app;
     const activeView = workspace.getActiveViewOfType(MarkdownView);
     localUserName = this.plugin.settings.usernameString
-
+    this.contentEl.empty();
     if (activeView) {
         const fileContents = await this.app.vault.cachedRead(activeView.file);
         if (fileContents.includes("# Comments")) {
@@ -259,47 +285,8 @@ export class CommentsView extends ItemView {
       el.style.height = '100%';
     });
     this.contentEl.append(this.display.commentsDiv);
-    super.onOpen()
+    console.log("testing")
   }
-
-	onClose() {
-		this.isOpen = false;
-		return super.onClose();
-	}
-
-	getFileListByQuery(tags: string[]): TFile[] {
-		let results: TFile[] = [];
-		const allFiles = this.app.vault.getFiles();
-		for (const file of allFiles) {
-			var match = true;
-			if (tags && tags.length > 0) {
-				// A tags query exist, file defaults to non-matching and we'll add it if it has one of the tags
-				match = false;
-				const fileCache = this.app.metadataCache.getFileCache(file);
-				if (fileCache && fileCache.tags) {
-					const tagsMatch = fileCache.tags.some(tagInFile => tags.indexOf(tagInFile.tag) > -1);
-					if (tagsMatch)
-						match = true;
-				}
-			}
-			if (match)
-				results.push(file);
-		}
-		return results;
-	}
-
-	// updateMapMarkers(newMarkers: FileMarker[]) {
-	//
-	// }
-
-	// async autoFitMapToMarkers() {
-	//
-	// 	// if (this.display.markers.size > 0) {
-	// 	// 	const locations: leaflet.LatLng[] = Array.from(this.display.markers.values()).map(fileMarker => fileMarker.location);
-	// 	// 	console.log(`Auto fit by state:`, this.state);
-	// 	// 	this.display.map.fitBounds(leaflet.latLngBounds(locations));
-	// 	// }
-	// }
 
 	async goToFile(file: TFile, useCtrlKeyBehavior: boolean, fileLocation?: number, highlight?: boolean) {
 		let leafToUse = this.app.workspace.activeLeaf;
