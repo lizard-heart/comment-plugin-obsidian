@@ -1,4 +1,4 @@
-import { App, TAbstractFile, Editor, ButtonComponent, MarkdownView, ItemView, Modal, MenuItem, Menu, TFile, TextComponent, DropdownComponent, WorkspaceLeaf } from 'obsidian';
+import { debounce, App, TAbstractFile, Editor, ButtonComponent, MarkdownView, ItemView, Modal, MenuItem, Menu, TFile, TextComponent, DropdownComponent, WorkspaceLeaf } from 'obsidian';
 import * as leaflet from 'leaflet';
 // import { parseYaml, Plugin, WorkspaceLeaf } from "obsidian";
 // Ugly hack for obsidian-leaflet compatability, see https://github.com/esm7/obsidian-map-view/issues/6
@@ -96,6 +96,9 @@ export class CommentsView extends ItemView {
 		super(leaf);
 		this.navigation = true;
     this.registerEvent(this.app.workspace.on("file-open", (_: any) => this.redraw()));
+    this.registerEvent(
+      this.app.vault.on("modify", (_: any) => this.redraw())
+    );
 		this.settings = settings;
 		this.plugin = plugin;
 		// Create the default state by the configuration
