@@ -1,85 +1,235 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+// import { MarkdownView, View, Plugin } from 'obsidian';
+// import CommentsSettingTab from './settings'
+// import type { CommentsSettings } from './types'
+// import { DEFAULT_SETTINGS, VIEW_TYPE_OB_COMMENTS } from './constants'
+// import { CommentsView } from './view'
 
-// Remember to rename these classes and interfaces!
+// export default class CommentsPlugin extends Plugin {
+// 	settings: CommentsSettings;
+// 	view: View;
 
-interface MyPluginSettings {
-	mySetting: string;
-}
+// 	async onload() {
+// 		// Load message
+// 		await this.loadSettings();
+// 		console.log('Loaded Comments Plugin');
+// 		this.addSettingTab(new CommentsSettingTab(this.app, this));
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+// 		this.positionComment = this.positionComment.bind(this);
+// 		this.registerEvent(this.app.workspace.on("click", this.positionComment));
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+// 		this.registerView(VIEW_TYPE_OB_COMMENTS, (leaf) => this.view = new CommentsView(leaf));
+// 		this.addCommand({
+// 			id: "show-comments-panel",
+// 			name: "Open Comments Panel",
+// 			callback: () => this.showPanel()
+// 		});
+
+// 		this.addCommand({
+// 			id: "add-comment",
+// 			name: "Add Comment",
+// 			callback: () => this.addComment()
+// 		});
+
+// 		if (this.settings.SHOW_RIBBON) {
+// 			this.addRibbonIcon('lines-of-text', "Show Comments Panel", (e) => this.showPanel());
+// 		}
+// 	}
+
+
+// 	async positionComment() {
+// 		let ob_elements = document.querySelectorAll('.ob-comment')
+
+// 		for (let el = 0; el < ob_elements.length; el++) {
+// 			let elements = ob_elements[el].querySelector('input') as HTMLInputElement
+
+// 			if (elements) {
+// 				elements.addEventListener('change', function () {
+// 					if (this.checked) {
+// 						let elSpan = ob_elements[el].querySelector('span');
+// 						if (elSpan) {
+// 							elSpan.style.setProperty('position', 'fixed')
+// 							elSpan.style.setProperty('top', `${Math.round(ob_elements[el].getBoundingClientRect().top)}px`)
+// 							elSpan.style.setProperty('right', '0px')
+// 						}
+// 					}
+// 				});
+// 			}
+// 		}
+// 	}
+
+// 	showPanel = function () {
+// 		this.app.workspace.getRightLeaf(true)
+// 			.setViewState({ type: VIEW_TYPE_OB_COMMENTS });
+// 	}
+
+// 	onunload() {
+// 		console.log('unloading plugin');
+// 	}
+
+// 	async loadSettings() {
+// 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+// 	}
+
+// 	async saveSettings() {
+// 		await this.saveData(this.settings);
+// 	}
+
+// 	addComment() {
+// 		let editor = this.getEditor();
+// 		const lines = this.getLines(editor);
+// 		if (!lines) return;
+// 		this.setLines(editor, ['<label class="ob-comment" title="" style=""> ' + lines + ' <input type="checkbox"> <span style=""> Comment </span></label>']);
+// 	}
+
+
+// 	getEditor(): CodeMirror.Editor {
+// 		let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+// 		if (!view) return;
+
+// 		let cm = view.sourceMode.cmEditor;
+// 		return cm;
+// 	}
+
+// 	getLines(editor: CodeMirror.Editor): string[] {
+// 		if (!editor) return;
+// 		const selection = editor.getSelection();
+// 		return [selection];
+// 	}
+
+// 	setLines(editor: CodeMirror.Editor, lines: string[]) {
+// 		const selection = editor.getSelection();
+// 		if (selection != "") {
+// 			editor.replaceSelection(lines.join("\n"));
+// 		} else {
+// 			editor.setValue(lines.join("\n"));
+// 		}
+// 	}
+// }
+
+
+import { MarkdownView, View, Plugin } from 'obsidian';
+import CommentsSettingTab from './settings'
+import type { CommentsSettings } from './types'
+import { DEFAULT_SETTINGS, VIEW_TYPE_OB_COMMENTS } from './constants'
+import { CommentsView } from './view'
+
+export default class CommentsPlugin extends Plugin {
+	settings: CommentsSettings;
+	view: View;
 
 	async onload() {
+		// Load message
 		await this.loadSettings();
+		console.log('Loaded Comments Plugin');
+		this.addSettingTab(new CommentsSettingTab(this.app, this));
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		this.positionComment = this.positionComment.bind(this);
+		this.registerEvent(this.app.workspace.on("layout-change", this.positionComment));
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
-
-		// This adds a simple command that can be triggered anywhere
+		this.registerView(VIEW_TYPE_OB_COMMENTS, (leaf) => this.view = new CommentsView(leaf));
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
+			id: "show-comments-panel",
+			name: "Open Comments Panel",
+			callback: () => this.showPanel()
 		});
-		// This adds an editor command that can perform some operation on the current editor instance
+
 		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			}
+			id: "add-comment",
+			name: "Add Comment",
+			callback: () => this.addComment()
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		if (this.settings.SHOW_RIBBON) {
+			this.addRibbonIcon('lines-of-text', "Show Comments Panel", (e) => this.showPanel());
+		}
 	}
 
-	onunload() {
+	async positionComment() {
+		let ob_elements = document.querySelectorAll('.ob-comment');
 
+		ob_elements.forEach((element) => {
+			// Ensure the click event is added only once
+			element.removeEventListener('click', this.showPanel);
+			element.addEventListener('click', this.showPanel.bind(this));
+
+			let inputElement = element.querySelector('input') as HTMLInputElement;
+
+			if (inputElement) {
+				inputElement.addEventListener('change', function () {
+					if (this.checked) {
+						let elSpan = element.querySelector('span');
+						if (elSpan) {
+							elSpan.style.setProperty('position', 'fixed');
+							elSpan.style.setProperty('top', `${Math.round(element.getBoundingClientRect().top)}px`);
+							elSpan.style.setProperty('right', '0px');
+						}
+					}
+				});
+			}
+		});
+	}
+
+	// showPanel() {
+	// 	const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_OB_COMMENTS);
+	// 	if (leaves.length > 0) {
+	// 		// If the comments panel is already open, just activate it
+	// 		this.app.workspace.revealLeaf(leaves[0]);
+	// 	} else {
+	// 		// Otherwise, open a new panel
+	// 		this.app.workspace.getRightLeaf(true).setViewState({ type: VIEW_TYPE_OB_COMMENTS });
+	// 	}
+	// }
+
+	addComment() {
+		let editor = this.getEditor();
+		const lines = this.getLines(editor);
+		if (!lines) return;
+
+		const commentText = lines.join(" ");
+		const commentNumber = document.querySelectorAll('.ob-comment').length + 1;
+		// Insert comment HTML with a star and identifiable content
+		this.setLines(editor, [
+			`<label class="ob-comment" title="" style="cursor: pointer;">${commentText} [${commentNumber}] <input type="checkbox" style="display: none;"> <span style=""> Comment </span></label>`
+		]);
+
+		// Add click handler for the new comment
+		setTimeout(() => {
+			const comments = document.querySelectorAll('.ob-comment');
+			comments.forEach(comment => {
+				comment.addEventListener('click', (e) => {
+					e.preventDefault(); // Prevent default HTML behavior
+					const rawText = comment.innerHTML; // Get the inner content of the label
+					const displayText = rawText.split('*')[0].trim(); // Extract the part before the *
+					this.showPanel(displayText);
+				});
+			});
+		}, 0);
+	}
+
+	showPanel(commentText: string) {
+		const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_OB_COMMENTS);
+		if (leaves.length > 0) {
+			// Update the panel content if it's already open
+			const view = leaves[0].view as CommentsView;
+			view.setCommentText(commentText); // Update the text in the panel
+			this.app.workspace.revealLeaf(leaves[0]);
+		} else {
+			// Open a new panel if none exists
+			this.app.workspace.getRightLeaf(true).setViewState({ type: VIEW_TYPE_OB_COMMENTS }).then(() => {
+				const newLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_OB_COMMENTS);
+				if (newLeaves.length > 0) {
+					const view = newLeaves[0].view as CommentsView;
+					view.setCommentText(commentText); // Set the initial text in the new panel
+				}
+			});
+		}
+	}
+
+
+
+
+	onunload() {
+		console.log('unloading plugin');
 	}
 
 	async loadSettings() {
@@ -89,46 +239,39 @@ export default class MyPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
-}
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
+	// addComment() {
+	// 	let editor = this.getEditor();
+	// 	const lines = this.getLines(editor);
+	// 	if (!lines) return;
+
+	// 	// Include the * next to the comment text
+	// 	this.setLines(editor, [
+	// 		`<label class="ob-comment" title="" style="">${lines} * <input type="checkbox"> <span style=""> Comment </span></label>`
+	// 	]);
+	// }
+
+
+	getEditor(): CodeMirror.Editor {
+		let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		if (!view) return;
+
+		let cm = view.sourceMode.cmEditor;
+		return cm;
 	}
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
+	getLines(editor: CodeMirror.Editor): string[] {
+		if (!editor) return;
+		const selection = editor.getSelection();
+		return [selection];
 	}
 
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+	setLines(editor: CodeMirror.Editor, lines: string[]) {
+		const selection = editor.getSelection();
+		if (selection != "") {
+			editor.replaceSelection(lines.join("\n"));
+		} else {
+			editor.setValue(lines.join("\n"));
+		}
 	}
 }
